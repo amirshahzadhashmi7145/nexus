@@ -22,6 +22,24 @@ NovaCart — a fictional e-commerce digital twin. Ask strategic questions, simul
 
 Architecture and roadmap live in [`nexus-docs/`](./nexus-docs/). Start with [`00-README.md`](./nexus-docs/00-README.md).
 
+## Local setup (Phase 0)
+
+```bash
+# venv (uv; system python3-venv may be missing)
+uv venv .venv
+source .venv/bin/activate
+uv pip install -r apps/api/requirements.txt
+
+# API
+cd apps/api && uvicorn app.main:app --reload
+
+# Tests
+cd apps/api && PYTHONPATH=. pytest -q
+
+# Infra skeleton
+docker compose up -d
+```
+
 ## Status
 
-Phase 0 — project setup in progress.
+Phase 0 — API `/health`, tests, and Compose skeleton ready.
