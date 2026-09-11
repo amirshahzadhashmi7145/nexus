@@ -1,15 +1,14 @@
 from fastapi import FastAPI
 
-from app.api.routes import digital_twin, inventory, orders, products
+from app.api.routes import digital_twin, inventory, orders, products, simulations
 
-app = FastAPI(title="NEXUS API", version="0.3.0")
+app = FastAPI(title="NEXUS API", version="0.4.0")
 
 app.include_router(products.router, prefix="/api/v1")
 app.include_router(inventory.router, prefix="/api/v1")
 app.include_router(orders.router, prefix="/api/v1")
-# Docs ask for GET /digital-twin; also expose under /api/v1 for consistency.
-app.include_router(digital_twin.router)
 app.include_router(digital_twin.router, prefix="/api/v1")
+app.include_router(simulations.router, prefix="/api/v1")
 
 
 @app.get("/health")

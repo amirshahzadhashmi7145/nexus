@@ -49,4 +49,4 @@ docker compose up -d
 
 ## Status
 
-Phase 3 — digital twin on `phase-3-digital-twin` (includes Phase 2; merge Phase 2 first or this branch).
+Phase 4 — price simulation on `phase-4-price-simulation`.

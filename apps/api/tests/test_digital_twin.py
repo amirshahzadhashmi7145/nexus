@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 
 
 def test_digital_twin_snapshot(client: TestClient) -> None:
-    response = client.get("/digital-twin")
+    response = client.get("/api/v1/digital-twin")
     assert response.status_code == 200
     body = response.json()
 
@@ -22,16 +22,9 @@ def test_digital_twin_snapshot(client: TestClient) -> None:
     assert len(body["suppliers_by_reliability"]) >= 1
 
 
-def test_digital_twin_also_under_api_v1(client: TestClient) -> None:
-    response = client.get("/api/v1/digital-twin")
-    assert response.status_code == 200
-    assert response.json()["organization"] == "NovaCart"
-
-
 def test_digital_twin_is_reproducible_for_same_seed(client: TestClient) -> None:
-    a = client.get("/digital-twin").json()
-    b = client.get("/digital-twin").json()
-    # as_of may differ by milliseconds; metrics must match
+    a = client.get("/api/v1/digital-twin").json()
+    b = client.get("/api/v1/digital-twin").json()
     for key in (
         "revenue",
         "cogs",
