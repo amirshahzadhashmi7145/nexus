@@ -7,8 +7,6 @@ app = FastAPI(title="NEXUS API", version="0.3.0")
 app.include_router(products.router, prefix="/api/v1")
 app.include_router(inventory.router, prefix="/api/v1")
 app.include_router(orders.router, prefix="/api/v1")
-# Docs ask for GET /digital-twin; also expose under /api/v1 for consistency.
-app.include_router(digital_twin.router)
 app.include_router(digital_twin.router, prefix="/api/v1")
 
 
