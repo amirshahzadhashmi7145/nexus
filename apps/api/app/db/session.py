@@ -2,18 +2,28 @@ import os
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 
-# Postgres in Docker for real work; SQLite for fast local/model tests.
+# Postgres in Docker for real work; local SQLite file for quick API demos.
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql+psycopg://nexus:nexus@localhost:5432/nexus",
+    "sqlite+pysqlite:///../../data/novacart.db",
 )
 
 
 def make_engine(url: str | None = None):
     db_url = url or DATABASE_URL
-    connect_args = {"check_same_thread": False} if db_url.startswith("sqlite") else {}
-    return create_engine(db_url, future=True, connect_args=connect_args)
+    if db_url.startswith("sqlite"):
+        # :memory: needs StaticPool so all sessions share one DB.
+        if ":memory:" in db_url:
+            return create_engine(
+                db_url,
+                future=True,
+                connect_args={"check_same_thread": False},
+                poolclass=StaticPool,
+            )
+        return create_engine(db_url, future=True, connect_args={"check_same_thread": False})
+    return create_engine(db_url, future=True)
 
 
 engine = make_engine()
