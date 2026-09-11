@@ -42,4 +42,4 @@ docker compose up -d
 
 ## Status
 
-Phase 0 — API `/health`, tests, and Compose skeleton ready.
+Phase 1 in progress on `phase-1-novacart-data` (merge `phase-0-foundation` first).
