@@ -25,6 +25,11 @@ out/
 .DS_Store
 Thumbs.db
 
+# Cursor / local docs (keep on machine, not in GitHub)
+.cursorrules
+.cursor/
+nexus-docs/
+
 # Data / local
 data/generated/
 data/*.db
