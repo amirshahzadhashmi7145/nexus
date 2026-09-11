@@ -36,10 +36,13 @@ cd apps/api && uvicorn app.main:app --reload
 # Tests
 cd apps/api && PYTHONPATH=. pytest -q
 
+# Seed NovaCart (sqlite file by default)
+cd apps/api && PYTHONPATH=. python -m app.cli generate-data --seed 42
+
 # Infra skeleton
 docker compose up -d
 ```
 
 ## Status
 
-Phase 0 — API `/health`, tests, and Compose skeleton ready.
+Phase 1 — models + synthetic generator on `phase-1-novacart-data` (merge `phase-0-foundation` first).
