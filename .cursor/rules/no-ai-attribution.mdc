@@ -1,0 +1,11 @@
+---
+description: No Cursor or AI branding in git or GitHub
+alwaysApply: true
+---
+
+# No AI attribution
+
+- Never add Co-authored-by Cursor, Made with Cursor, or any AI/tool logo/badge
+- Never put Cursor/AI as contributor, author, or commit trailer
+- Commits and PRs must look like a normal human developer authored them
+- Do not add Cursor branding to README, LICENSE, or repo metadata
