@@ -49,4 +49,4 @@ docker compose up -d
 
 ## Status
 
-Phase 2 — catalog API on `phase-2-api-endpoints`.
+Phase 3 — digital twin on `phase-3-digital-twin` (includes Phase 2; merge Phase 2 first or this branch).
