@@ -27,6 +27,8 @@ Thumbs.db
 
 # Data / local
 data/generated/
+data/*.db
+*.db
 *.log
 .coverage
 htmlcov/
