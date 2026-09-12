@@ -52,10 +52,17 @@ cd apps/api && uvicorn app.main:app --reload
 # Full pricing decision (manager + research + ops + sim + critic)
 # POST /api/v1/decisions/analyze-price-change
 
+# Web dashboard (API must be running)
+cd apps/web && cp -n .env.example .env.local && npm run dev
+# open http://127.0.0.1:3000
+
+# MCP server (for Cursor / other hosts) — see mcp.json.example
+# cd apps/api && PYTHONPATH=. python -m app.mcp_server
+
 # Infra skeleton (Postgres/Redis when you are ready)
 docker compose up -d
 ```
 
 ## Status
 
-Phase 7 — decision orchestrator on `phase-7-decision-orchestrator`.
+Phase 9 — MCP tools on `phase-9-mcp`.
