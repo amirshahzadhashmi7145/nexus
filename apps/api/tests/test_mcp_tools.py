@@ -22,6 +22,8 @@ def test_mcp_registers_expected_tools() -> None:
     assert "ask_policy_question" in names
     assert "simulate_sku_price_change" in names
     assert "analyze_price_decision" in names
+    assert "approve_decision" in names
+    assert "reject_decision" in names
 
 
 def test_mcp_get_digital_twin_tool() -> None:

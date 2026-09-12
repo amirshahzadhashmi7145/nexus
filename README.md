@@ -59,10 +59,14 @@ cd apps/web && cp -n .env.example .env.local && npm run dev
 # MCP server (for Cursor / other hosts) — see mcp.json.example
 # cd apps/api && PYTHONPATH=. python -m app.mcp_server
 
+# Human approval + audit
+# POST /api/v1/decisions/{id}/approve
+# GET  /api/v1/audit
+
 # Infra skeleton (Postgres/Redis when you are ready)
 docker compose up -d
 ```
 
 ## Status
 
-Phase 9 — MCP tools on `phase-9-mcp`.
+Phase 10 — approval + audit on `phase-10-approval-audit`.

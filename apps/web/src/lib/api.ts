@@ -35,6 +35,14 @@ export type PriceDecision = {
   };
 };
 
+export type DecisionRecord = {
+  decision_id: string;
+  status: string;
+  recommendation: string;
+  decided_by: string | null;
+  decision_note: string | null;
+};
+
 export async function fetchDigitalTwin(): Promise<DigitalTwin> {
   const res = await fetch(`${API_BASE}/api/v1/digital-twin`, { cache: "no-store" });
   if (!res.ok) {
@@ -58,6 +66,23 @@ export async function analyzePriceChange(body: {
   if (!res.ok) {
     const detail = await res.text();
     throw new Error(detail || `Decision failed (${res.status})`);
+  }
+  return res.json();
+}
+
+export async function resolveDecision(
+  decisionId: string,
+  action: "approve" | "reject",
+  body: { actor: string; note?: string },
+): Promise<DecisionRecord> {
+  const res = await fetch(`${API_BASE}/api/v1/decisions/${decisionId}/${action}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const detail = await res.text();
+    throw new Error(detail || `Resolve failed (${res.status})`);
   }
   return res.json();
 }

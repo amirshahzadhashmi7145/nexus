@@ -2,7 +2,7 @@ from datetime import UTC, date, datetime
 from decimal import Decimal
 from typing import Optional
 
-from sqlalchemy import Date, DateTime, ForeignKey, Integer, Numeric, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, Numeric, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -119,3 +119,36 @@ class FinancialRecord(Base):
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     amount: Mapped[Decimal] = mapped_column(Numeric(14, 2))
     order_id: Mapped[Optional[int]] = mapped_column(ForeignKey("orders.id"), nullable=True)
+
+
+class DecisionRun(Base):
+    """Persisted decision packet awaiting / after human approval."""
+
+    __tablename__ = "decision_runs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    decision_id: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    kind: Mapped[str] = mapped_column(String(64), default="price_change")
+    sku: Mapped[Optional[str]] = mapped_column(String(64), nullable=True, index=True)
+    status: Mapped[str] = mapped_column(String(32), default="pending", index=True)
+    recommendation: Mapped[str] = mapped_column(Text)
+    system_approve: Mapped[bool] = mapped_column(Boolean, default=False)
+    payload_json: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+    decided_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    decided_by: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
+    decision_note: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+
+class AuditLog(Base):
+    """Append-only trail of important system/human actions."""
+
+    __tablename__ = "audit_logs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
+    actor: Mapped[str] = mapped_column(String(128), default="system")
+    action: Mapped[str] = mapped_column(String(64), index=True)
+    entity_type: Mapped[str] = mapped_column(String(64))
+    entity_id: Mapped[str] = mapped_column(String(64), index=True)
+    detail: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
