@@ -56,10 +56,13 @@ cd apps/api && uvicorn app.main:app --reload
 cd apps/web && cp -n .env.example .env.local && npm run dev
 # open http://127.0.0.1:3000
 
+# MCP server (for Cursor / other hosts) — see mcp.json.example
+# cd apps/api && PYTHONPATH=. python -m app.mcp_server
+
 # Infra skeleton (Postgres/Redis when you are ready)
 docker compose up -d
 ```
 
 ## Status
 
-Phase 8 — web dashboard on `phase-8-web-dashboard` (includes Phase 7).
+Phase 9 — MCP tools on `phase-9-mcp`.
