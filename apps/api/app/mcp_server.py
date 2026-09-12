@@ -15,15 +15,18 @@ from __future__ import annotations
 from mcp.server.fastmcp import FastMCP
 from sqlalchemy.orm import Session
 
-from app.db.session import SessionLocal
+from app.db.base import Base
+from app.db.session import SessionLocal, engine
 from app.rag.retriever import get_index, retrieve
 from app.schemas_decision import PriceDecisionIn
+from app.services.approvals import resolve_decision, save_price_decision
 from app.services.digital_twin import build_digital_twin
 from app.services.orchestrator import analyze_price_decision as run_price_decision
 from app.services.policy_qa import answer_policy_question
 from app.services.simulation import PriceSimRequest, simulate_price_change
 
 mcp = FastMCP("nexus-novacart")
+Base.metadata.create_all(bind=engine)
 
 
 def _session() -> Session:
@@ -106,7 +109,7 @@ def analyze_price_decision(
     horizon_days: int = 30,
     seed: int = 42,
 ) -> dict:
-    """Full manager orchestrator: research + twin + simulation + critic + recommendation."""
+    """Full manager orchestrator; also persists a pending decision for human approval."""
     get_index()
     body = PriceDecisionIn(
         sku=sku,
@@ -117,7 +120,38 @@ def analyze_price_decision(
     )
     with _session() as db:
         result = run_price_decision(db, body)
+        save_price_decision(db, result)
     return result.model_dump(mode="json")
+
+
+@mcp.tool()
+def approve_decision(decision_id: str, actor: str = "human", note: str | None = None) -> dict:
+    """Human-approve a pending decision and write an audit event."""
+    with _session() as db:
+        row = resolve_decision(
+            db, decision_id=decision_id, approve=True, actor=actor, note=note
+        )
+    return {
+        "decision_id": row.decision_id,
+        "status": row.status,
+        "decided_by": row.decided_by,
+        "decision_note": row.decision_note,
+    }
+
+
+@mcp.tool()
+def reject_decision(decision_id: str, actor: str = "human", note: str | None = None) -> dict:
+    """Human-reject a pending decision and write an audit event."""
+    with _session() as db:
+        row = resolve_decision(
+            db, decision_id=decision_id, approve=False, actor=actor, note=note
+        )
+    return {
+        "decision_id": row.decision_id,
+        "status": row.status,
+        "decided_by": row.decided_by,
+        "decision_note": row.decision_note,
+    }
 
 
 def main() -> None:
