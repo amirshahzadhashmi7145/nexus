@@ -52,10 +52,14 @@ cd apps/api && uvicorn app.main:app --reload
 # Full pricing decision (manager + research + ops + sim + critic)
 # POST /api/v1/decisions/analyze-price-change
 
+# Web dashboard (API must be running)
+cd apps/web && cp -n .env.example .env.local && npm run dev
+# open http://127.0.0.1:3000
+
 # Infra skeleton (Postgres/Redis when you are ready)
 docker compose up -d
 ```
 
 ## Status
 
-Phase 7 — decision orchestrator on `phase-7-decision-orchestrator`.
+Phase 8 — web dashboard on `phase-8-web-dashboard` (includes Phase 7).

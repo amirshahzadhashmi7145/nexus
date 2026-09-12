@@ -1,0 +1,262 @@
+:root {
+  --bg: #eef2f0;
+  --bg-accent: #d9e4df;
+  --ink: #14201c;
+  --muted: #4d5c56;
+  --line: #b7c4bd;
+  --panel: rgba(255, 255, 255, 0.72);
+  --teal: #0f6b5c;
+  --teal-deep: #0a4a40;
+  --warn: #8a4b12;
+  --ok: #1f6b3a;
+  --font-display: "Syne", system-ui, sans-serif;
+  --font-body: "Source Serif 4", Georgia, serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  color: var(--ink);
+  background:
+    radial-gradient(1200px 600px at 10% -10%, #c5ddd4 0%, transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, #d7e0ea 0%, transparent 50%),
+    linear-gradient(180deg, var(--bg) 0%, #e7ebe8 100%);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.shell {
+  width: min(1100px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 1.5rem 0 3rem;
+}
+
+.topnav {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.35rem;
+  letter-spacing: 0.04em;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1rem;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+}
+
+.nav-links a {
+  color: var(--muted);
+}
+
+.nav-links a:hover {
+  color: var(--teal);
+}
+
+.hero {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 6vw, 4.2rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  max-width: 12ch;
+}
+
+.hero p {
+  max-width: 38ch;
+  color: var(--muted);
+  font-size: 1.15rem;
+}
+
+.cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 0.7rem 1.2rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 160ms ease, background 160ms ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background: var(--teal);
+  color: #f4fffb;
+}
+
+.btn-primary:hover {
+  background: var(--teal-deep);
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 1.1rem 1.2rem;
+  backdrop-filter: blur(8px);
+}
+
+.panel h2 {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  margin-bottom: 0.85rem;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+}
+
+.metric {
+  padding: 0.85rem 0.9rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(183, 196, 189, 0.7);
+}
+
+.metric span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-family: var(--font-display);
+  margin-bottom: 0.25rem;
+}
+
+.metric strong {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+}
+
+.form-grid {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  margin-bottom: 1rem;
+}
+
+label {
+  display: grid;
+  gap: 0.35rem;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+input {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  background: #fff;
+  color: var(--ink);
+}
+
+.error {
+  color: var(--warn);
+  margin: 0.75rem 0;
+  font-family: var(--font-display);
+}
+
+.trace {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
+.step {
+  border-left: 3px solid var(--teal);
+  padding: 0.55rem 0.8rem;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 0 10px 10px 0;
+}
+
+.step strong {
+  font-family: var(--font-display);
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.step span {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.badge {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  margin-bottom: 0.6rem;
+}
+
+.badge-ok {
+  background: #d9f0e1;
+  color: var(--ok);
+}
+
+.badge-no {
+  background: #f3e1cf;
+  color: var(--warn);
+}
+
+.stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.muted {
+  color: var(--muted);
+}
