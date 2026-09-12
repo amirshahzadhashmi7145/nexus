@@ -20,7 +20,7 @@ NovaCart — a fictional e-commerce digital twin. Ask strategic questions, simul
 
 ## Docs
 
-Architecture and roadmap live in [`nexus-docs/`](./nexus-docs/). Start with [`00-README.md`](./nexus-docs/00-README.md).
+Product docs live locally in `nexus-docs/` (gitignored). Company policies used by RAG are in `apps/api/data/company/`.
 
 ## Local setup (Phase 0)
 
@@ -46,10 +46,13 @@ cd apps/api && uvicorn app.main:app --reload
 # RAG: query NovaCart policies
 # POST /api/v1/rag/query  {"question": "...", "top_k": 3}
 
+# Structured policy answer (RAG + LLM provider; default stub)
+# POST /api/v1/decisions/policy-question
+
 # Infra skeleton (Postgres/Redis when you are ready)
 docker compose up -d
 ```
 
 ## Status
 
-Phase 5 — RAG retrieval on `phase-5-rag`.
+Phase 6 — structured LLM policy answers on `phase-6-llm-structured`.

@@ -44,7 +44,7 @@ def test_rag_api_query(client: TestClient) -> None:
     assert response.status_code == 200
     body = response.json()
     assert body["hits"]
-    assert "Phase 5" in body["note"]
+    assert "policy-question" in body["note"]
     assert body["context"]
 
 
