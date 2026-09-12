@@ -1,18 +1,12 @@
 {
   "mcpServers": {
     "nexus-novacart": {
-      "command": "uv",
-      "args": [
-        "run",
-        "--directory",
-        "apps/api",
-        "python",
-        "-m",
-        "app.mcp_server"
-      ],
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": ["-m", "app.mcp_server"],
+      "cwd": "${workspaceFolder}/apps/api",
       "env": {
         "PYTHONPATH": ".",
-        "DATABASE_URL": "sqlite+pysqlite:///../../data/novacart.db",
+        "DATABASE_URL": "sqlite+pysqlite:///${workspaceFolder}/data/novacart.db",
         "LLM_PROVIDER": "stub"
       }
     }
