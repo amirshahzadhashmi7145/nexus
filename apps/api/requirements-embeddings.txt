@@ -1,0 +1,2 @@
+# Optional neural RAG (Phase 11). Default app uses TF-IDF without this.
+sentence-transformers>=3.0.0

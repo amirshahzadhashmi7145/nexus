@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from app.rag.retriever import get_index, list_sources, retrieve
-from app.schemas_rag import RagDocumentsOut, RagHit, RagQueryIn, RagQueryOut
+from app.rag.retriever import get_index, list_sources, rag_status, retrieve
+from app.schemas_rag import RagDocumentsOut, RagHit, RagQueryIn, RagQueryOut, RagStatusOut
 
 router = APIRouter(prefix="/rag", tags=["rag"])
 
@@ -10,6 +10,11 @@ router = APIRouter(prefix="/rag", tags=["rag"])
 def get_rag_documents() -> RagDocumentsOut:
     index = get_index()
     return RagDocumentsOut(documents=list_sources(), chunk_count=len(index.chunks))
+
+
+@router.get("/status", response_model=RagStatusOut)
+def get_rag_status() -> RagStatusOut:
+    return RagStatusOut(**rag_status())
 
 
 @router.post("/query", response_model=RagQueryOut)

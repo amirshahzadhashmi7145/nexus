@@ -26,3 +26,11 @@ class RagQueryOut(BaseModel):
 class RagDocumentsOut(BaseModel):
     documents: list[str]
     chunk_count: int
+
+
+class RagStatusOut(BaseModel):
+    provider: str
+    chunk_count: int
+    embedding_dim: int
+    documents: list[str]
+    env_provider: str

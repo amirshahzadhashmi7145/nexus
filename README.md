@@ -63,10 +63,15 @@ cd apps/web && cp -n .env.example .env.local && npm run dev
 # POST /api/v1/decisions/{id}/approve
 # GET  /api/v1/audit
 
+# RAG embedding provider (default tfidf; optional minilm)
+# EMBEDDING_PROVIDER=minilm
+# uv pip install -r apps/api/requirements-embeddings.txt
+# GET /api/v1/rag/status
+
 # Infra skeleton (Postgres/Redis when you are ready)
 docker compose up -d
 ```
 
 ## Status
 
-Phase 10 — approval + audit on `phase-10-approval-audit`.
+Phase 11 — neural embedding provider on `phase-11-neural-embeddings`.
