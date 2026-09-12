@@ -43,10 +43,13 @@ cd apps/api && PYTHONPATH=. python -m app.cli generate-data --seed 42
 cd apps/api && uvicorn app.main:app --reload
 # then open http://127.0.0.1:8000/docs
 
+# RAG: query NovaCart policies
+# POST /api/v1/rag/query  {"question": "...", "top_k": 3}
+
 # Infra skeleton (Postgres/Redis when you are ready)
 docker compose up -d
 ```
 
 ## Status
 
-Phase 4 — price simulation on `phase-4-price-simulation`.
+Phase 5 — RAG retrieval on `phase-5-rag`.
