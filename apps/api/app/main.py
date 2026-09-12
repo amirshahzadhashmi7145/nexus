@@ -2,7 +2,7 @@ from fastapi import FastAPI
 
 from app.api.routes import decisions, digital_twin, inventory, orders, products, rag, simulations
 
-app = FastAPI(title="NEXUS API", version="0.6.0")
+app = FastAPI(title="NEXUS API", version="0.7.0")
 
 app.include_router(products.router, prefix="/api/v1")
 app.include_router(inventory.router, prefix="/api/v1")

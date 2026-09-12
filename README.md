@@ -49,10 +49,13 @@ cd apps/api && uvicorn app.main:app --reload
 # Structured policy answer (RAG + LLM provider; default stub)
 # POST /api/v1/decisions/policy-question
 
+# Full pricing decision (manager + research + ops + sim + critic)
+# POST /api/v1/decisions/analyze-price-change
+
 # Infra skeleton (Postgres/Redis when you are ready)
 docker compose up -d
 ```
 
 ## Status
 
-Phase 6 — structured LLM policy answers on `phase-6-llm-structured`.
+Phase 7 — decision orchestrator on `phase-7-decision-orchestrator`.
