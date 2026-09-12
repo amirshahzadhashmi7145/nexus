@@ -18,8 +18,8 @@ class RagQueryOut(BaseModel):
     hits: list[RagHit]
     context: str
     note: str = (
-        "Retrieved policy context only (Phase 5). "
-        "LLM answer generation comes in Phase 6."
+        "Retrieved policy context only. "
+        "For structured answers use POST /api/v1/decisions/policy-question."
     )
 
 
