@@ -15,19 +15,35 @@ export default async function HomePage() {
     <div className="shell">
       <SiteNav />
       <section className="hero">
+        <p className="eyebrow">lablab.ai × AMD · NovaCart MVP</p>
         <h1>NEXUS</h1>
         <p>
-          Simulate decisions. Discover better strategies. Act with confidence —
-          NovaCart digital twin for the lablab.ai × AMD hackathon.
+          Digital twin + policy RAG + Monte Carlo + multi-agent decisions — with a
+          human in the loop. Built CPU-first; swap in vLLM on AMD when you are ready.
         </p>
         <div className="cta-row">
           <Link className="btn btn-primary" href="/decide">
-            Analyze a price change
+            Run the 60-second demo
           </Link>
           <a className="btn btn-ghost" href="http://127.0.0.1:8000/docs" target="_blank" rel="noreferrer">
             API docs
           </a>
         </div>
+      </section>
+
+      <section className="panel demo-strip">
+        <h2>What judges should see</h2>
+        <ol className="flow-list">
+          <li>
+            <strong>Twin</strong> — live NovaCart metrics from the business DB
+          </li>
+          <li>
+            <strong>Decide</strong> — one-click price cut; agents + simulation + policies
+          </li>
+          <li>
+            <strong>Approve</strong> — human sign-off written to the audit log
+          </li>
+        </ol>
       </section>
 
       <section className="panel">
