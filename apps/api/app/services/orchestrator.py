@@ -8,8 +8,8 @@ Flow:
     → Critic (policy vs risk checks)
     → Manager recommendation
 
-No separate LLM per agent yet — responsibilities are explicit functions.
-Later you can swap any step to a real model call behind the same schemas.
+Research uses get_provider() (stub by default; openai_compatible / vllm via env).
+Other agents stay deterministic functions so CPU demos stay reliable.
 """
 
 from __future__ import annotations
@@ -55,11 +55,12 @@ def analyze_price_decision(db: Session, body: PriceDecisionIn) -> PriceDecisionO
     )
     hits = retrieve(policy_question, top_k=body.top_k_policies)
     context = "\n\n".join(f"[{h.source}] {h.text}" for h in hits) or "No policy context."
-    policy = get_provider("stub").analyze_policy(question=policy_question, context=context)
+    llm = get_provider(body.provider)
+    policy = llm.analyze_policy(question=policy_question, context=context)
     trace.append(
         AgentStep(
             agent="research",
-            role="Retrieve and interpret company policies",
+            role=f"Retrieve and interpret company policies ({llm.name})",
             summary=policy.answer_summary,
         )
     )

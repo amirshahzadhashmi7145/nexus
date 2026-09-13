@@ -25,6 +25,10 @@ class PriceDecisionIn(BaseModel):
     horizon_days: int = Field(default=30, ge=1, le=365)
     seed: int = Field(default=42)
     top_k_policies: int = Field(default=4, ge=1, le=10)
+    provider: str | None = Field(
+        default=None,
+        description="Optional LLM override: stub | openai_compatible | vllm. Default from LLM_PROVIDER.",
+    )
 
 
 class PriceDecisionOut(BaseModel):

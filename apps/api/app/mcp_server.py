@@ -62,9 +62,9 @@ def search_policies(question: str, top_k: int = 3) -> dict:
 
 @mcp.tool()
 def ask_policy_question(question: str, top_k: int = 4) -> dict:
-    """RAG + structured policy analysis (default stub LLM provider)."""
+    """RAG + structured policy analysis (LLM_PROVIDER env; default stub)."""
     get_index()
-    result = answer_policy_question(question=question, top_k=top_k, provider_name="stub")
+    result = answer_policy_question(question=question, top_k=top_k)
     return result.model_dump(mode="json")
 
 

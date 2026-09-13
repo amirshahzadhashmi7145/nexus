@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import decisions, digital_twin, inventory, orders, products, rag, simulations
+from app.api.routes import decisions, digital_twin, inventory, llm, orders, products, rag, simulations
 from app.db.base import Base
 from app.db.session import engine
 
@@ -15,7 +15,7 @@ async def lifespan(_app: FastAPI):
     yield
 
 
-app = FastAPI(title="NEXUS API", version="0.11.0", lifespan=lifespan)
+app = FastAPI(title="NEXUS API", version="0.13.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -34,6 +34,7 @@ app.include_router(orders.router, prefix="/api/v1")
 app.include_router(digital_twin.router, prefix="/api/v1")
 app.include_router(simulations.router, prefix="/api/v1")
 app.include_router(rag.router, prefix="/api/v1")
+app.include_router(llm.router, prefix="/api/v1")
 app.include_router(decisions.router, prefix="/api/v1")
 app.include_router(decisions.audit_router, prefix="/api/v1")
 
