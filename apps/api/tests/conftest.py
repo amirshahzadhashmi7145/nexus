@@ -1,3 +1,13 @@
+"""Pytest fixtures. Force in-memory SQLite before any app DB import."""
+
+from __future__ import annotations
+
+import os
+
+# Must run before importing app.db.session / app.main (dotenv won't override).
+os.environ["DATABASE_URL"] = "sqlite+pysqlite:///:memory:"
+os.environ["NEXUS_DB"] = "sqlite"
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session

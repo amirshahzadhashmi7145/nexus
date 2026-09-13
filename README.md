@@ -28,7 +28,7 @@ export LLM_MODEL=gpt-4o-mini
 # restart uvicorn, then GET /api/v1/llm/status  → provider should be openai_compatible
 ```
 
-Same knobs work for Groq/Together/etc. (OpenAI-compatible base URL). Later: `LLM_PROVIDER=vllm` + AMD GPU. RAG embeddings stay separate (`EMBEDDING_PROVIDER`).
+Same knobs work for Groq/Together/etc. (OpenAI-compatible base URL). For **AMD + vLLM**, see [`docs/AMD-VLLM.md`](./docs/AMD-VLLM.md). RAG embeddings stay separate (`EMBEDDING_PROVIDER`).
 
 ## Stack
 
@@ -74,6 +74,7 @@ cd apps/api && PYTHONPATH=. pytest -q
 # Status helpers
 # GET  /api/v1/db/status
 # GET  /api/v1/llm/status
+# GET  /api/v1/llm/ping
 # GET  /api/v1/rag/status
 # POST /api/v1/rag/query
 # POST /api/v1/decisions/policy-question
@@ -87,10 +88,16 @@ cd apps/api && PYTHONPATH=. pytest -q
 # EMBEDDING_PROVIDER=minilm
 # uv pip install -r apps/api/requirements-embeddings.txt
 
+# AMD / vLLM (generation only) — see docs/AMD-VLLM.md
+# LLM_PROVIDER=vllm
+# LLM_BASE_URL=http://127.0.0.1:8001/v1
+# LLM_API_KEY=EMPTY
+# LLM_MODEL=meta-llama/Llama-3.1-8B-Instruct
+
 # Full infra (Postgres + Redis)
 docker compose up -d
 ```
 
 ## Status
 
-Phase 14 — Postgres-first business DB on `phase-14-postgres` (`NEXUS_DB` / `DATABASE_URL`, `GET /api/v1/db/status`; SQLite still the zero-setup fallback).
+Phase 15 — vLLM / AMD readiness on `phase-15-vllm-amd` (`docs/AMD-VLLM.md`, `GET /api/v1/llm/ping`, vLLM-friendly JSON parsing).

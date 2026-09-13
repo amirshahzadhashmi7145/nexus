@@ -2,7 +2,14 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-from app.llm.providers import OpenAICompatibleProvider, StubProvider, get_provider, llm_status
+from app.llm.providers import (
+    OpenAICompatibleProvider,
+    StubProvider,
+    _parse_json_content,
+    get_provider,
+    llm_ping,
+    llm_status,
+)
 from app.rag.retriever import build_index
 from app.services.policy_qa import answer_policy_question
 
@@ -51,6 +58,28 @@ def test_vllm_provider_name(monkeypatch) -> None:
     provider = get_provider()
     assert isinstance(provider, OpenAICompatibleProvider)
     assert provider.name == "vllm"
+    assert provider.prefer_json_object is False
+
+
+def test_vllm_defaults_base_url(monkeypatch) -> None:
+    monkeypatch.setenv("LLM_PROVIDER", "vllm")
+    monkeypatch.delenv("LLM_BASE_URL", raising=False)
+    monkeypatch.setenv("LLM_API_KEY", "EMPTY")
+    monkeypatch.delenv("LLM_MODEL", raising=False)
+    provider = get_provider()
+    assert isinstance(provider, OpenAICompatibleProvider)
+    assert provider.base_url == "http://127.0.0.1:8001/v1"
+    assert "Llama" in (provider.model or "")
+
+
+def test_parse_json_content_fenced() -> None:
+    raw = (
+        'Here you go:\n```json\n{"answer_summary": "ok", "findings": [], '
+        '"evidence": [], "assumptions": [], "uncertainties": [], '
+        '"recommended_actions": []}\n```'
+    )
+    parsed = _parse_json_content(raw)
+    assert parsed["answer_summary"] == "ok"
 
 
 def test_llm_status_reports_stub(monkeypatch) -> None:
@@ -61,6 +90,14 @@ def test_llm_status_reports_stub(monkeypatch) -> None:
     assert status["api_key_configured"] is False or isinstance(
         status["api_key_configured"], bool
     )
+
+
+def test_llm_ping_stub(monkeypatch) -> None:
+    monkeypatch.setenv("LLM_PROVIDER", "stub")
+    result = llm_ping()
+    assert result["ok"] is True
+    assert result["provider"] == "stub"
+    assert result["method"] == "local"
 
 
 def test_policy_qa_uses_rag_then_structured_output() -> None:
@@ -96,7 +133,6 @@ def test_policy_question_api(client: TestClient) -> None:
 
 def test_llm_status_api(client: TestClient, monkeypatch) -> None:
     monkeypatch.setenv("LLM_PROVIDER", "stub")
-    # Clear any inherited key noise for a stable assertion
     monkeypatch.delenv("LLM_API_KEY", raising=False)
     response = client.get("/api/v1/llm/status")
     assert response.status_code == 200
@@ -104,3 +140,12 @@ def test_llm_status_api(client: TestClient, monkeypatch) -> None:
     assert body["provider"] == "stub"
     assert body["env_provider"] == "stub"
     assert "note" in body
+
+
+def test_llm_ping_api(client: TestClient, monkeypatch) -> None:
+    monkeypatch.setenv("LLM_PROVIDER", "stub")
+    response = client.get("/api/v1/llm/ping")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["ok"] is True
+    assert body["provider"] == "stub"
