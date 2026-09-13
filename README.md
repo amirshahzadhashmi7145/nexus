@@ -50,8 +50,15 @@ uv venv .venv
 source .venv/bin/activate
 uv pip install -r apps/api/requirements.txt
 
-# Seed NovaCart (sqlite file by default)
+# --- Preferred: Postgres (business source of truth) ---
+docker compose up -d postgres
+cp -n .env.example .env   # DATABASE_URL already points at local Postgres
 cd apps/api && PYTHONPATH=. python -m app.cli generate-data --seed 42
+# GET /api/v1/db/status → dialect=postgresql, ok=true
+
+# --- Fallback: SQLite (no Docker) ---
+# unset DATABASE_URL; leave NEXUS_DB unset (or NEXUS_DB=sqlite)
+# cd apps/api && PYTHONPATH=. python -m app.cli generate-data --seed 42
 
 # API
 cd apps/api && uvicorn app.main:app --reload
@@ -61,10 +68,11 @@ cd apps/api && uvicorn app.main:app --reload
 cd apps/web && cp -n .env.example .env.local && npm run dev
 # http://127.0.0.1:3000
 
-# Tests
+# Tests (always use in-memory SQLite)
 cd apps/api && PYTHONPATH=. pytest -q
 
-# RAG / decisions / LLM (Swagger or curl)
+# Status helpers
+# GET  /api/v1/db/status
 # GET  /api/v1/llm/status
 # GET  /api/v1/rag/status
 # POST /api/v1/rag/query
@@ -79,10 +87,10 @@ cd apps/api && PYTHONPATH=. pytest -q
 # EMBEDDING_PROVIDER=minilm
 # uv pip install -r apps/api/requirements-embeddings.txt
 
-# Infra skeleton (Postgres/Redis when you are ready)
+# Full infra (Postgres + Redis)
 docker compose up -d
 ```
 
 ## Status
 
-Phase 13 — live LLM via OpenAI-compatible API on `phase-13-live-llm` (orchestrator respects `LLM_PROVIDER`; `GET /api/v1/llm/status`).
+Phase 14 — Postgres-first business DB on `phase-14-postgres` (`NEXUS_DB` / `DATABASE_URL`, `GET /api/v1/db/status`; SQLite still the zero-setup fallback).
