@@ -100,4 +100,4 @@ docker compose up -d
 
 ## Status
 
-Phase 15 — vLLM / AMD readiness on `phase-15-vllm-amd` (`docs/AMD-VLLM.md`, `GET /api/v1/llm/ping`, vLLM-friendly JSON parsing).
+Phase 16 — UI refresh on `phase-16-ui-refresh` (decision-desk layout). Phase 15 vLLM readiness: `docs/AMD-VLLM.md`.

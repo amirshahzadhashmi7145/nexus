@@ -85,12 +85,13 @@ export default function DecidePage() {
   return (
     <div className="shell">
       <SiteNav />
+
       <section className="hero">
-        <p className="eyebrow">Step 2 · orchestrator</p>
+        <p className="eyebrow">Decision desk</p>
         <h1>Decide</h1>
         <p>
-          Manager plans → research (RAG) → ops + Monte Carlo → finance → critic.
-          Then you approve or reject; that becomes the audit trail.
+          One run: policy research, twin state, Monte Carlo, critic, then your
+          approval.
         </p>
         <div className="cta-row">
           <button
@@ -99,17 +100,16 @@ export default function DecidePage() {
             disabled={loading}
             onClick={onDemoClick}
           >
-            {loading ? "Running agents…" : "One-click demo (P-0001 −10%)"}
+            {loading ? "Running…" : "Run P-0001 −10%"}
           </button>
         </div>
       </section>
 
       <div className="stack">
-        <section className="panel">
-          <h2>Price-change scenario</h2>
+        <section className="block">
+          <h2>Scenario</h2>
           <p className="muted" style={{ marginBottom: "0.85rem" }}>
-            Defaults match the seeded NovaCart catalog. Change them if you want;
-            seed stays 42 so demos are repeatable.
+            Seeded catalog defaults. Seed stays 42 for repeatable demos.
           </p>
           <form onSubmit={onSubmit}>
             <div className="form-grid">
@@ -127,28 +127,30 @@ export default function DecidePage() {
               </label>
             </div>
             <button className="btn btn-primary" type="submit" disabled={loading}>
-              {loading ? "Running agents…" : "Analyze"}
+              {loading ? "Running…" : "Analyze"}
             </button>
           </form>
           {error ? <p className="error">{error}</p> : null}
         </section>
 
         {result ? (
-          <section className="panel result-enter">
-            <span className={`badge ${result.approve ? "badge-ok" : "badge-no"}`}>
-              System: {result.approve ? "approve signal" : "do not auto-approve"}
-            </span>
-            {humanStatus ? (
-              <span
-                className={`badge ${humanStatus === "approved" ? "badge-ok" : humanStatus === "rejected" ? "badge-no" : "badge-no"}`}
-                style={{ marginLeft: "0.4rem" }}
-              >
-                Human: {humanStatus}
+          <section className="block result-enter">
+            <div className="status-row">
+              <span className={`status ${result.approve ? "status-ok" : "status-warn"}`}>
+                System · {result.approve ? "approve signal" : "hold"}
               </span>
-            ) : null}
+              {humanStatus ? (
+                <span
+                  className={`status ${humanStatus === "approved" ? "status-ok" : "status-warn"}`}
+                >
+                  Human · {humanStatus}
+                </span>
+              ) : null}
+            </div>
             <h2>{result.decision_id}</h2>
-            <p style={{ marginBottom: "0.75rem" }}>{result.recommendation}</p>
-            <div className="metrics" style={{ marginBottom: "1rem" }}>
+            <p style={{ marginBottom: "0.35rem", lineHeight: 1.5 }}>{result.recommendation}</p>
+
+            <div className="metrics">
               <div className="metric">
                 <span>Expected revenue</span>
                 <strong>{money(result.simulation.expected_revenue)}</strong>
@@ -158,20 +160,20 @@ export default function DecidePage() {
                 <strong>{money(result.simulation.expected_profit)}</strong>
               </div>
               <div className="metric">
-                <span>Stockout probability</span>
+                <span>Stockout</span>
                 <strong>{(result.simulation.stockout_probability * 100).toFixed(1)}%</strong>
               </div>
             </div>
 
             {humanStatus === "pending" ? (
-              <div className="cta-row" style={{ marginBottom: "1rem" }}>
+              <div className="cta-row" style={{ marginBottom: "1.1rem" }}>
                 <button
                   className="btn btn-primary"
                   type="button"
                   disabled={resolving}
                   onClick={() => onResolve("approve")}
                 >
-                  {resolving ? "Saving…" : "Human approve"}
+                  {resolving ? "Saving…" : "Approve"}
                 </button>
                 <button
                   className="btn btn-ghost"
@@ -195,16 +197,18 @@ export default function DecidePage() {
                 </div>
               ))}
             </div>
-            <h2 style={{ marginTop: "1rem" }}>Risks</h2>
-            <ul className="muted" style={{ paddingLeft: "1.1rem" }}>
+
+            <h2 style={{ marginTop: "1.1rem" }}>Risks</h2>
+            <ul className="list-plain">
               {result.risks.map((risk) => (
                 <li key={risk}>{risk}</li>
               ))}
             </ul>
+
             {result.next_actions.length > 0 ? (
               <>
-                <h2 style={{ marginTop: "1rem" }}>Next actions</h2>
-                <ul className="muted" style={{ paddingLeft: "1.1rem" }}>
+                <h2 style={{ marginTop: "1.1rem" }}>Next actions</h2>
+                <ul className="list-plain">
                   {result.next_actions.map((action) => (
                     <li key={action}>{action}</li>
                   ))}
@@ -215,8 +219,8 @@ export default function DecidePage() {
         ) : null}
 
         {audit.length > 0 ? (
-          <section className="panel result-enter">
-            <h2>Audit log (latest)</h2>
+          <section className="block result-enter">
+            <h2>Audit</h2>
             <div className="trace">
               {audit.map((event) => (
                 <div className="step" key={event.id}>
