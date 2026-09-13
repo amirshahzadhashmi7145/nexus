@@ -10,6 +10,16 @@ Built for the **lablab.ai × AMD** hackathon.
 
 NovaCart — a fictional e-commerce digital twin. Ask strategic questions, simulate futures, compare strategies, and approve safe actions with full traces.
 
+## 60-second demo (judges)
+
+With API + web running:
+
+1. Open **http://127.0.0.1:3000** — twin snapshot from the business DB  
+2. Click **Run the 60-second demo** → **One-click demo (P-0001 −10%)**  
+3. Watch agent trace (RAG + Monte Carlo + critic) → **Human approve** → audit log appears  
+
+Stub LLM answers are fine for CPU demos. Point `LLM_*` at OpenAI-compatible or **vLLM on AMD** when you want live generation. RAG embeddings default to TF-IDF; optional MiniLM via `EMBEDDING_PROVIDER=minilm`.
+
 ## Stack
 
 - **Backend:** Python, FastAPI, PostgreSQL, Redis
@@ -22,7 +32,7 @@ NovaCart — a fictional e-commerce digital twin. Ask strategic questions, simul
 
 Product docs live locally in `nexus-docs/` (gitignored). Company policies used by RAG are in `apps/api/data/company/`.
 
-## Local setup (Phase 0)
+## Local setup
 
 ```bash
 # venv (uv; system python3-venv may be missing)
@@ -30,43 +40,33 @@ uv venv .venv
 source .venv/bin/activate
 uv pip install -r apps/api/requirements.txt
 
+# Seed NovaCart (sqlite file by default)
+cd apps/api && PYTHONPATH=. python -m app.cli generate-data --seed 42
+
 # API
 cd apps/api && uvicorn app.main:app --reload
+# http://127.0.0.1:8000/docs
+
+# Web dashboard (second terminal)
+cd apps/web && cp -n .env.example .env.local && npm run dev
+# http://127.0.0.1:3000
 
 # Tests
 cd apps/api && PYTHONPATH=. pytest -q
 
-# Seed NovaCart (sqlite file by default)
-cd apps/api && PYTHONPATH=. python -m app.cli generate-data --seed 42
-
-# API (serves seeded sqlite by default)
-cd apps/api && uvicorn app.main:app --reload
-# then open http://127.0.0.1:8000/docs
-
-# RAG: query NovaCart policies
-# POST /api/v1/rag/query  {"question": "...", "top_k": 3}
-
-# Structured policy answer (RAG + LLM provider; default stub)
+# RAG / decisions (Swagger or curl)
+# GET  /api/v1/rag/status
+# POST /api/v1/rag/query
 # POST /api/v1/decisions/policy-question
-
-# Full pricing decision (manager + research + ops + sim + critic)
 # POST /api/v1/decisions/analyze-price-change
-
-# Web dashboard (API must be running)
-cd apps/web && cp -n .env.example .env.local && npm run dev
-# open http://127.0.0.1:3000
+# GET  /api/v1/audit
 
 # MCP server (for Cursor / other hosts) — see mcp.json.example
 # cd apps/api && PYTHONPATH=. python -m app.mcp_server
 
-# Human approval + audit
-# POST /api/v1/decisions/{id}/approve
-# GET  /api/v1/audit
-
-# RAG embedding provider (default tfidf; optional minilm)
+# Optional neural embeddings
 # EMBEDDING_PROVIDER=minilm
 # uv pip install -r apps/api/requirements-embeddings.txt
-# GET /api/v1/rag/status
 
 # Infra skeleton (Postgres/Redis when you are ready)
 docker compose up -d
@@ -74,4 +74,4 @@ docker compose up -d
 
 ## Status
 
-Phase 11 — neural embedding provider on `phase-11-neural-embeddings`.
+Phase 12 — demo polish on `phase-12-demo-polish` (judge-ready UI path + README script).

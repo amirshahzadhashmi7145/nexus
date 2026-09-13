@@ -4,31 +4,40 @@ import { FormEvent, useState } from "react";
 import { SiteNav } from "@/components/SiteNav";
 import {
   analyzePriceChange,
+  fetchAudit,
   money,
   resolveDecision,
+  type AuditEvent,
   type PriceDecision,
 } from "@/lib/api";
 
+const DEMO = {
+  sku: "P-0001",
+  pct: "-10",
+  sims: "100",
+} as const;
+
 export default function DecidePage() {
-  const [sku, setSku] = useState("P-0001");
-  const [pct, setPct] = useState("-10");
-  const [sims, setSims] = useState("100");
+  const [sku, setSku] = useState<string>(DEMO.sku);
+  const [pct, setPct] = useState<string>(DEMO.pct);
+  const [sims, setSims] = useState<string>(DEMO.sims);
   const [loading, setLoading] = useState(false);
   const [resolving, setResolving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<PriceDecision | null>(null);
   const [humanStatus, setHumanStatus] = useState<string | null>(null);
+  const [audit, setAudit] = useState<AuditEvent[]>([]);
 
-  async function onSubmit(event: FormEvent) {
-    event.preventDefault();
+  async function runAnalyze(nextSku: string, nextPct: string, nextSims: string) {
     setLoading(true);
     setError(null);
     setHumanStatus(null);
+    setAudit([]);
     try {
       const data = await analyzePriceChange({
-        sku: sku.trim(),
-        price_change_pct: Number(pct),
-        simulations: Number(sims),
+        sku: nextSku.trim(),
+        price_change_pct: Number(nextPct),
+        simulations: Number(nextSims),
         horizon_days: 30,
         seed: 42,
       });
@@ -42,6 +51,18 @@ export default function DecidePage() {
     }
   }
 
+  async function onSubmit(event: FormEvent) {
+    event.preventDefault();
+    await runAnalyze(sku, pct, sims);
+  }
+
+  async function onDemoClick() {
+    setSku(DEMO.sku);
+    setPct(DEMO.pct);
+    setSims(DEMO.sims);
+    await runAnalyze(DEMO.sku, DEMO.pct, DEMO.sims);
+  }
+
   async function onResolve(action: "approve" | "reject") {
     if (!result) return;
     setResolving(true);
@@ -52,6 +73,8 @@ export default function DecidePage() {
         note: action === "approve" ? "Approved in NEXUS UI" : "Rejected in NEXUS UI",
       });
       setHumanStatus(record.status);
+      const events = await fetchAudit(8);
+      setAudit(events);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Resolve failed");
     } finally {
@@ -63,16 +86,31 @@ export default function DecidePage() {
     <div className="shell">
       <SiteNav />
       <section className="hero">
+        <p className="eyebrow">Step 2 · orchestrator</p>
         <h1>Decide</h1>
         <p>
-          Run the manager orchestrator, then human-approve or reject. Every step is
-          written to the audit log.
+          Manager plans → research (RAG) → ops + Monte Carlo → finance → critic.
+          Then you approve or reject; that becomes the audit trail.
         </p>
+        <div className="cta-row">
+          <button
+            className="btn btn-primary"
+            type="button"
+            disabled={loading}
+            onClick={onDemoClick}
+          >
+            {loading ? "Running agents…" : "One-click demo (P-0001 −10%)"}
+          </button>
+        </div>
       </section>
 
       <div className="stack">
         <section className="panel">
           <h2>Price-change scenario</h2>
+          <p className="muted" style={{ marginBottom: "0.85rem" }}>
+            Defaults match the seeded NovaCart catalog. Change them if you want;
+            seed stays 42 so demos are repeatable.
+          </p>
           <form onSubmit={onSubmit}>
             <div className="form-grid">
               <label>
@@ -96,7 +134,7 @@ export default function DecidePage() {
         </section>
 
         {result ? (
-          <section className="panel">
+          <section className="panel result-enter">
             <span className={`badge ${result.approve ? "badge-ok" : "badge-no"}`}>
               System: {result.approve ? "approve signal" : "do not auto-approve"}
             </span>
@@ -163,6 +201,35 @@ export default function DecidePage() {
                 <li key={risk}>{risk}</li>
               ))}
             </ul>
+            {result.next_actions.length > 0 ? (
+              <>
+                <h2 style={{ marginTop: "1rem" }}>Next actions</h2>
+                <ul className="muted" style={{ paddingLeft: "1.1rem" }}>
+                  {result.next_actions.map((action) => (
+                    <li key={action}>{action}</li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
+          </section>
+        ) : null}
+
+        {audit.length > 0 ? (
+          <section className="panel result-enter">
+            <h2>Audit log (latest)</h2>
+            <div className="trace">
+              {audit.map((event) => (
+                <div className="step" key={event.id}>
+                  <strong>
+                    {event.action} · {event.entity_type}/{event.entity_id}
+                  </strong>
+                  <span>
+                    {event.actor}
+                    {event.detail ? ` — ${event.detail}` : ""}
+                  </span>
+                </div>
+              ))}
+            </div>
           </section>
         ) : null}
       </div>

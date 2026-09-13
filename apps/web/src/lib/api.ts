@@ -43,6 +43,16 @@ export type DecisionRecord = {
   decision_note: string | null;
 };
 
+export type AuditEvent = {
+  id: number;
+  created_at: string;
+  actor: string;
+  action: string;
+  entity_type: string;
+  entity_id: string;
+  detail: string | null;
+};
+
 export async function fetchDigitalTwin(): Promise<DigitalTwin> {
   const res = await fetch(`${API_BASE}/api/v1/digital-twin`, { cache: "no-store" });
   if (!res.ok) {
@@ -85,6 +95,17 @@ export async function resolveDecision(
     throw new Error(detail || `Resolve failed (${res.status})`);
   }
   return res.json();
+}
+
+export async function fetchAudit(limit = 10): Promise<AuditEvent[]> {
+  const res = await fetch(`${API_BASE}/api/v1/audit?limit=${limit}`, {
+    cache: "no-store",
+  });
+  if (!res.ok) {
+    throw new Error(`Audit failed (${res.status})`);
+  }
+  const body = await res.json();
+  return (body.items ?? []) as AuditEvent[];
 }
 
 export function money(value: string | number): string {
