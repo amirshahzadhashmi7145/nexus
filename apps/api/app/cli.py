@@ -1,17 +1,19 @@
 """CLI entrypoints for local NovaCart workflows.
 
 Usage (from apps/api):
-  PYTHONPATH=. python -m app.cli generate-data --customers 100 --products 50 --orders 500
+  PYTHONPATH=. python -m app.cli generate-data --seed 42
+  PYTHONPATH=. python -m app.cli db-status
 """
 
 from __future__ import annotations
 
 import argparse
-import os
+import json
 
 from app.data import GenerateConfig, generate_novacart, validate_novacart
 from app.db.base import Base
-from app.db.session import make_engine
+from app.db.config import dialect_of, redact_database_url, resolve_database_url
+from app.db.session import database_status, make_engine
 from sqlalchemy.orm import Session
 
 
@@ -28,16 +30,28 @@ def _build_parser() -> argparse.ArgumentParser:
     gen.add_argument("--warehouses", type=int, default=3)
     gen.add_argument(
         "--database-url",
-        default=os.getenv("DATABASE_URL", "sqlite+pysqlite:///../../data/novacart.db"),
-        help="SQLAlchemy URL (default: local sqlite file under data/)",
+        default=None,
+        help="SQLAlchemy URL (default: resolve DATABASE_URL / NEXUS_DB / sqlite file)",
     )
+
+    sub.add_parser("db-status", help="Show which database the CLI/API config points at")
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
+    if args.command == "db-status":
+        # Prefer live probe via session helpers when using process defaults;
+        # if -- not applicable, still print resolved URL.
+        url = resolve_database_url()
+        print(json.dumps({"resolved_url": redact_database_url(url), "dialect": dialect_of(url)}, indent=2))
+        print(json.dumps(database_status(), indent=2))
+        return 0
+
     if args.command == "generate-data":
-        engine = make_engine(args.database_url)
+        url = resolve_database_url(args.database_url)
+        print(f"Seeding dialect={dialect_of(url)} url={redact_database_url(url)}")
+        engine = make_engine(url)
         Base.metadata.drop_all(engine)
         Base.metadata.create_all(engine)
         with Session(engine) as session:
