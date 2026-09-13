@@ -53,6 +53,8 @@ def post_policy_question(body: PolicyQuestionIn) -> PolicyQuestionOut:
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
 
 
 @router.post("/analyze-price-change", response_model=PriceDecisionOut)
@@ -66,6 +68,8 @@ def post_analyze_price_change(
         return result
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
 
 
 @router.get("", response_model=DecisionListOut)

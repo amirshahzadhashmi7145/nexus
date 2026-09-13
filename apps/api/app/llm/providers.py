@@ -3,7 +3,8 @@
 Learn:
 - App code talks to a Provider interface, not to one vendor SDK.
 - Default for local/dev/tests: StubProvider (no API key, deterministic).
-- Optional: OpenAI-compatible HTTP API (OpenAI, vLLM, Azure, etc.) via env vars.
+- Optional: OpenAI-compatible HTTP API (OpenAI, Groq, Together, vLLM, …) via env.
+- FINAL hackathon target: LLM_PROVIDER=vllm → same HTTP shape, AMD GPU server.
 """
 
 from __future__ import annotations
@@ -20,6 +21,7 @@ from app.schemas_llm import Evidence, PolicyAnalysis
 
 class LLMProvider(ABC):
     name: str
+    model: str | None = None
 
     @abstractmethod
     def analyze_policy(self, *, question: str, context: str) -> PolicyAnalysis:
@@ -30,6 +32,7 @@ class StubProvider(LLMProvider):
     """Heuristic structured answer from retrieved context (no external LLM)."""
 
     name = "stub"
+    model = None
 
     def analyze_policy(self, *, question: str, context: str) -> PolicyAnalysis:
         snippets = [s.strip() for s in context.split("\n\n") if s.strip()]
@@ -92,16 +95,16 @@ class StubProvider(LLMProvider):
 class OpenAICompatibleProvider(LLMProvider):
     """Calls an OpenAI-compatible chat completions endpoint with JSON object response."""
 
-    name = "openai_compatible"
-
     def __init__(
         self,
         *,
         base_url: str,
         api_key: str,
         model: str,
+        name: str = "openai_compatible",
         timeout: float = 60.0,
     ) -> None:
+        self.name = name
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key
         self.model = model
@@ -134,25 +137,82 @@ class OpenAICompatibleProvider(LLMProvider):
             "Content-Type": "application/json",
         }
         url = f"{self.base_url}/chat/completions"
-        with httpx.Client(timeout=self.timeout) as client:
-            response = client.post(url, headers=headers, json=payload)
-            response.raise_for_status()
-            data = response.json()
-        content = data["choices"][0]["message"]["content"]
-        parsed = json.loads(content)
-        return PolicyAnalysis.model_validate(parsed)
+        try:
+            with httpx.Client(timeout=self.timeout) as client:
+                response = client.post(url, headers=headers, json=payload)
+                response.raise_for_status()
+                data = response.json()
+        except httpx.HTTPStatusError as exc:
+            detail = exc.response.text[:500]
+            raise RuntimeError(
+                f"LLM provider '{self.name}' HTTP {exc.response.status_code} "
+                f"at {url}: {detail}"
+            ) from exc
+        except httpx.HTTPError as exc:
+            raise RuntimeError(
+                f"LLM provider '{self.name}' request failed at {url}: {exc}"
+            ) from exc
+
+        try:
+            content = data["choices"][0]["message"]["content"]
+            parsed = json.loads(content)
+            return PolicyAnalysis.model_validate(parsed)
+        except (KeyError, IndexError, TypeError, json.JSONDecodeError) as exc:
+            raise RuntimeError(
+                f"LLM provider '{self.name}' returned unusable JSON content"
+            ) from exc
 
 
 def get_provider(name: str | None = None) -> LLMProvider:
+    """Resolve provider from explicit name or LLM_PROVIDER (default stub)."""
     chosen = (name or os.getenv("LLM_PROVIDER", "stub")).strip().lower()
     if chosen in {"stub", "heuristic", "local"}:
         return StubProvider()
+
     if chosen in {"openai_compatible", "openai", "vllm"}:
-        base_url = os.getenv("LLM_BASE_URL", "https://api.openai.com/v1")
-        api_key = os.getenv("LLM_API_KEY", "")
-        model = os.getenv("LLM_MODEL", "gpt-4o-mini")
+        base_url = os.getenv("LLM_BASE_URL", "https://api.openai.com/v1").rstrip("/")
+        api_key = os.getenv("LLM_API_KEY", "").strip()
+        model = os.getenv("LLM_MODEL", "gpt-4o-mini").strip()
+        display = "vllm" if chosen == "vllm" else "openai_compatible"
+
+        # OpenAI cloud needs a real key; without one, keep demos working via stub.
         if not api_key and "api.openai.com" in base_url:
-            # Fall back so local demos never crash without keys.
             return StubProvider()
-        return OpenAICompatibleProvider(base_url=base_url, api_key=api_key or "EMPTY", model=model)
+
+        return OpenAICompatibleProvider(
+            base_url=base_url,
+            api_key=api_key or "EMPTY",
+            model=model,
+            name=display,
+        )
+
     raise ValueError(f"Unknown LLM provider: {chosen}")
+
+
+def llm_status() -> dict[str, Any]:
+    """Inspect which generation backend the API will use (does not call the model)."""
+    env_provider = os.getenv("LLM_PROVIDER", "stub")
+    provider = get_provider()
+    base_url = os.getenv("LLM_BASE_URL", "https://api.openai.com/v1")
+    model_env = os.getenv("LLM_MODEL", "gpt-4o-mini")
+    has_key = bool(os.getenv("LLM_API_KEY", "").strip())
+    fallback = provider.name == "stub" and env_provider.strip().lower() not in {
+        "stub",
+        "heuristic",
+        "local",
+        "",
+    }
+    return {
+        "provider": provider.name,
+        "model": provider.model,
+        "env_provider": env_provider,
+        "base_url": None if provider.name == "stub" else base_url.rstrip("/"),
+        "model_env": model_env,
+        "api_key_configured": has_key,
+        "fallback_to_stub": fallback,
+        "note": (
+            "Generation only — RAG embeddings are separate (EMBEDDING_PROVIDER)."
+            if provider.name != "stub"
+            else "Stub uses retrieved policy text heuristics; set LLM_PROVIDER + key for live models."
+        ),
+    }

@@ -18,7 +18,17 @@ With API + web running:
 2. Click **Run the 60-second demo** → **One-click demo (P-0001 −10%)**  
 3. Watch agent trace (RAG + Monte Carlo + critic) → **Human approve** → audit log appears  
 
-Stub LLM answers are fine for CPU demos. Point `LLM_*` at OpenAI-compatible or **vLLM on AMD** when you want live generation. RAG embeddings default to TF-IDF; optional MiniLM via `EMBEDDING_PROVIDER=minilm`.
+Stub LLM answers are fine for CPU demos. For **live** generation on your laptop (no GPU download):
+
+```bash
+export LLM_PROVIDER=openai_compatible
+export LLM_BASE_URL=https://api.openai.com/v1
+export LLM_API_KEY=sk-...
+export LLM_MODEL=gpt-4o-mini
+# restart uvicorn, then GET /api/v1/llm/status  → provider should be openai_compatible
+```
+
+Same knobs work for Groq/Together/etc. (OpenAI-compatible base URL). Later: `LLM_PROVIDER=vllm` + AMD GPU. RAG embeddings stay separate (`EMBEDDING_PROVIDER`).
 
 ## Stack
 
@@ -54,7 +64,8 @@ cd apps/web && cp -n .env.example .env.local && npm run dev
 # Tests
 cd apps/api && PYTHONPATH=. pytest -q
 
-# RAG / decisions (Swagger or curl)
+# RAG / decisions / LLM (Swagger or curl)
+# GET  /api/v1/llm/status
 # GET  /api/v1/rag/status
 # POST /api/v1/rag/query
 # POST /api/v1/decisions/policy-question
@@ -74,4 +85,4 @@ docker compose up -d
 
 ## Status
 
-Phase 12 — demo polish on `phase-12-demo-polish` (judge-ready UI path + README script).
+Phase 13 — live LLM via OpenAI-compatible API on `phase-13-live-llm` (orchestrator respects `LLM_PROVIDER`; `GET /api/v1/llm/status`).
