@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { Syne, Source_Serif_4 } from "next/font/google";
+import { Manrope, Sora } from "next/font/google";
 import "./globals.css";
 
-const syne = Syne({
+const sora = Sora({
   subsets: ["latin"],
   variable: "--font-display",
 });
 
-const sourceSerif = Source_Serif_4({
+const manrope = Manrope({
   subsets: ["latin"],
   variable: "--font-body",
 });
@@ -24,7 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${syne.variable} ${sourceSerif.variable}`}>{children}</body>
+      <body className={`${sora.variable} ${manrope.variable}`}>{children}</body>
     </html>
   );
 }

@@ -10,6 +10,7 @@ from app.db.config import (
 
 
 def test_resolve_defaults_to_sqlite(monkeypatch) -> None:
+    monkeypatch.setenv("NEXUS_SKIP_DOTENV", "1")
     monkeypatch.delenv("DATABASE_URL", raising=False)
     monkeypatch.delenv("NEXUS_DB", raising=False)
     url = resolve_database_url()
@@ -18,6 +19,7 @@ def test_resolve_defaults_to_sqlite(monkeypatch) -> None:
 
 
 def test_resolve_nexus_db_postgres(monkeypatch) -> None:
+    monkeypatch.setenv("NEXUS_SKIP_DOTENV", "1")
     monkeypatch.delenv("DATABASE_URL", raising=False)
     monkeypatch.setenv("NEXUS_DB", "postgres")
     assert resolve_database_url() == DEFAULT_POSTGRES_URL

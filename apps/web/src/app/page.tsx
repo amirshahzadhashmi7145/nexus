@@ -14,71 +14,76 @@ export default async function HomePage() {
   return (
     <div className="shell">
       <SiteNav />
+
       <section className="hero">
-        <p className="eyebrow">lablab.ai × AMD · NovaCart MVP</p>
+        <p className="eyebrow">NovaCart · lablab.ai × AMD</p>
         <h1>NEXUS</h1>
         <p>
-          Digital twin + policy RAG + Monte Carlo + multi-agent decisions — with a
-          human in the loop. Built CPU-first; swap in vLLM on AMD when you are ready.
+          Simulate a price move against live twin data, company policy, and risk —
+          then approve it with a full audit trail.
         </p>
         <div className="cta-row">
           <Link className="btn btn-primary" href="/decide">
-            Run the 60-second demo
+            Start decision demo
           </Link>
-          <a className="btn btn-ghost" href="http://127.0.0.1:8000/docs" target="_blank" rel="noreferrer">
-            API docs
+          <a
+            className="btn btn-ghost"
+            href="http://127.0.0.1:8000/docs"
+            target="_blank"
+            rel="noreferrer"
+          >
+            API
           </a>
         </div>
       </section>
 
-      <section className="panel demo-strip">
-        <h2>What judges should see</h2>
-        <ol className="flow-list">
-          <li>
-            <strong>Twin</strong> — live NovaCart metrics from the business DB
-          </li>
-          <li>
-            <strong>Decide</strong> — one-click price cut; agents + simulation + policies
-          </li>
-          <li>
-            <strong>Approve</strong> — human sign-off written to the audit log
-          </li>
-        </ol>
-      </section>
-
-      <section className="panel">
-        <h2>NovaCart twin snapshot</h2>
-        {error ? (
-          <p className="error">{error}</p>
-        ) : twin ? (
-          <div className="metrics">
-            <div className="metric">
-              <span>Revenue</span>
-              <strong>{money(twin.revenue)}</strong>
-            </div>
-            <div className="metric">
-              <span>Profit</span>
-              <strong>{money(twin.profit)}</strong>
-            </div>
-            <div className="metric">
-              <span>Inventory units</span>
-              <strong>{twin.inventory_units}</strong>
-            </div>
-            <div className="metric">
-              <span>Orders</span>
-              <strong>{twin.order_count}</strong>
-            </div>
-            <div className="metric">
-              <span>Customers</span>
-              <strong>{twin.customer_count}</strong>
-            </div>
-            <div className="metric">
-              <span>Low-stock SKUs</span>
-              <strong>{twin.low_stock_skus.length}</strong>
-            </div>
+      <p className="section-label">Live twin</p>
+      {error ? (
+        <p className="error">{error}</p>
+      ) : twin ? (
+        <div className="ticker">
+          <div className="ticker-item">
+            <span>Revenue</span>
+            <strong>{money(twin.revenue)}</strong>
           </div>
-        ) : null}
-      </section>
+          <div className="ticker-item">
+            <span>Profit</span>
+            <strong>{money(twin.profit)}</strong>
+          </div>
+          <div className="ticker-item">
+            <span>Orders</span>
+            <strong>{twin.order_count}</strong>
+          </div>
+          <div className="ticker-item">
+            <span>Inventory</span>
+            <strong>{twin.inventory_units}</strong>
+          </div>
+          <div className="ticker-item">
+            <span>Customers</span>
+            <strong>{twin.customer_count}</strong>
+          </div>
+          <div className="ticker-item">
+            <span>Low stock</span>
+            <strong>{twin.low_stock_skus.length}</strong>
+          </div>
+        </div>
+      ) : null}
+
+      <p className="section-label">Demo path</p>
+      <div className="pipeline">
+        <div className="pipeline-step">
+          <strong>1 · Twin</strong>
+          <p>Business truth from Postgres (or SQLite).</p>
+        </div>
+        <div className="pipeline-step">
+          <strong>2 · Decide</strong>
+          <p>RAG + simulation + agents on a −10% cut.</p>
+        </div>
+        <div className="pipeline-step">
+          <strong>3 · Approve</strong>
+          <p>Human sign-off lands in the audit log.</p>
+        </div>
+      </div>
     </div>
   );
 }

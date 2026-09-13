@@ -21,6 +21,8 @@ DEFAULT_POSTGRES_URL = "postgresql+psycopg://nexus:nexus@localhost:5432/nexus"
 
 def load_dotenv_if_present() -> None:
     """Load repo-root .env once if python-dotenv is installed (optional)."""
+    if os.getenv("NEXUS_SKIP_DOTENV") == "1" or os.getenv("PYTEST_CURRENT_TEST"):
+        return
     env_path = REPO_ROOT / ".env"
     if not env_path.is_file():
         return
